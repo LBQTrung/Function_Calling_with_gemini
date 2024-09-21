@@ -40,7 +40,7 @@ def add_student(name, student_id, score):
 
 
 # ========== Convert functions into strings ==========
-function_calling_list = [get_top_student_info]
+function_calling_list = [get_top_student_info, get_student_info]
 function_calling_string_list = [inspect.getsource(function_calling) for function_calling in function_calling_list]
 
 
@@ -51,3 +51,23 @@ function_calling_string_list = [inspect.getsource(function_calling) for function
 
 
 # ========== Prepare prompt ==========
+CONTEXT_PROMPT = f"""
+    Hãy nhớ những danh sách hàm dưới đây và thực hiện theo yêu cầu: {function_calling_string_list}
+"""
+
+def get_question_prompt(question):
+    return f"""
+    Câu hỏi: {question}
+    Kiểm tra câu hỏi nó có liên quan đến thông tin điểm của lớp AI K2 không
+và đưa ra đầu ra là một json có key và value như sau:
+    - has_function_calling: True nếu có hàm được gọi, False nếu không.
+    - function_calling: Một danh sách các chuỗi, mỗi chuỗi là lệnh gọi hàm tương ứng với yêu cầu của người dùng.
+    - message: Trong trường hợp has_function_calling bằng False, trả về một string trả lời câu hỏi người dùng một cách bình thường
+    """
+
+def result_prompt(question, references):
+    return f"""
+    Câu hỏi: {question}
+    Hãy trả lời câu hỏi dựa vào thông tin sau: {references}
+    Đầu ra: là một string trả lời câu hỏi trên 
+    """
